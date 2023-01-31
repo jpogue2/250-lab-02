@@ -25,17 +25,22 @@ int main(int argc, char *argv[])
      */
     int sockfd, newsockfd, portno;
     /* 2. What is a UNIX file descriptor and file descriptor table?
-     * Source: ChatGPT
-     * A UNIX file descriptor is a unique reference integer used by the OS to open a file
-     * when a program requests to open it. A file descriptor table is a way of organizing
-     * the file descriptors so that the OS can properly link files and programs.
+     * Source: ChatGPT, https://www.computerhope.com/jargon/f/file-descriptor.htm
+     * A UNIX file descriptor is a unique reference integer used by the Kernel to allow
+     * programs to interact with files upon request, with limitations determined by the read, 
+     * write, and execute permissions outlined in the global file table. The file descriptor 
+     * table is a way of organizing the file descriptors so that the Kernel can efficiently
+     * link files and programs.
      */
     socklen_t clilen;
 
     struct sockaddr_in serv_addr, cli_addr;
     /* 3. What is a struct? What's the structure of sockaddr_in?
+     * Source: Various library files
      * A struct is a "suitcase" that packages together many variables into a single object. 
-     * In this example, the sockaddr_in struct has data members serv_addr and cli_addr.
+     * In this example, the sockaddr_in struct comes from the included /netinet/in.h file.
+     * There, it was defined with data members that include sin_port and sin_addr, which
+     * together describe an Internet socket address.
      */
     
     int n;
@@ -45,12 +50,15 @@ int main(int argc, char *argv[])
     }
     
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    /* 4. What are the input parameters and return value of socket()
-     * Source: ChatGPT
-     * socket() has three input parameters. The first input parameter is the type of address.
-     * In this case, the AF_INET address family is used. The second input parameter is the 
-     * type of socket. The last input parameter is the protocol to be used with the socket.
-     * socket() returns the socket descriptor of the new socket.
+    /* 4. What are the input parameters and return value of socket()?
+     * Source: Library files such as socket.h, socket_type.h, and in.h
+     * socket() has three input parameters. The first input parameter is the type of address/domain
+     * that the socket uses. In this case, the AF_INET address family is used. The second input 
+     * parameter is the type of socket. Here, this is SOCK_STREAM. In socket_type.h, SOCK_STREAM is described as 
+     * "sequenced, reliable, connection-based byte streams". The last input parameter is the 
+     * protocol to be used with the socket. In this case, the protocol is unspecified.
+     * socket() returns the file descriptor of the new socket, or alternatively, -1 if an error occurs.
+     * This is why we check for an error using if(sockfd < 0) below.
      */
     
     if (sockfd < 0) 
@@ -65,14 +73,15 @@ int main(int argc, char *argv[])
              sizeof(serv_addr)) < 0) 
              error("ERROR on binding");
     /* 5. What are the input parameters of bind() and listen()?
-     * Source: ChatGPT
+     * Source: Various library files
      * bind() has three input parameters. The first input parameter is the socket descriptor
      * of the socket being used (created above using socket()). The second input
-     * parameter is a pointer to a sockaddr struct which contains the address of the 
-     * server to be used. The third input parameter is the length of the address.
+     * parameter is a pointer to a sockaddr struct which describes the socket address
+     * to be used (by storing, among other things, the address family). The third 
+     * input parameter is the length of the socket address of type socklen_t.
      * listen() has two input parameters. The first is the socket descriptor returned by
      * socket(). The second input parameter is an integer that signifies the maximum
-     * number of communications that can be backlogged on the socket at any given time.
+     * number of communications that can be queued on the socket at any given time.
      */
     
     listen(sockfd,5);
@@ -80,10 +89,10 @@ int main(int argc, char *argv[])
     
     while(1) {
         /* 6.  Why use while(1)? Based on the code below, what problems might occur if there are multiple simultaneous connections to handle?
-        * while(1) ensures that the code within the while loop executes forever. Due
+        * while(1) ensures that the code within the while loop executes forever. A potential problem is that, due
         * to the way the error() function has been written, the program will be terminated immediately
-        * if any of the simultaneous connections have errors. Therefore, all connections will fail if only
-        * one receives an error. 
+        * if ANY of the simultaneous connections have errors. Therefore, ALL messages will fail to send if only
+        * ONE of the messages receives an error. 
         */
         
 	char buffer[256];
@@ -95,9 +104,9 @@ int main(int argc, char *argv[])
          * The fork() function basically duplicates execution of the file into two processes:
          * a child process and a parent process. These two processes can occur simultaneously,
          * allowing the program to perform multiple tasks (on multiple items) at once.
-         * Here, this is helpful so that every connection enters a "separate" while loop.
-         * Therefore, if one connection cannot be read or written to, it will not affect
-         * the other connections.
+         * Here, this is helpful so that every communication enters a "separate" while loop.
+         * Therefore, if one connection fails a read or write command, it will not affect
+         * the other messages.
          */
         
 	if (newsockfd < 0) 

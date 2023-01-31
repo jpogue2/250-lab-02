@@ -4,6 +4,7 @@
 ## Team Members
 - team member 1: Jeremy Pogue
 - team member 2: Kaelyn Cho
+- Note: We worked independently, but helped each other when stuck.
 
 ## Lab Question Answers
 
@@ -13,8 +14,8 @@ When 50% loss was added to the local environment for UDP, the reliability was ha
 
 Answer for Question 2:
 
-When 50% loss was added to the local environment for TCP, the reliability was unchanged. This occurred because, whenever the TCP was unable to send something, it would continue trying to send it until success. Therefore, all user input was sent eventually. However, there was latency in the responses.
+When 50% loss was added to the local environment for TCP, the reliability was unchanged. This occurred because, whenever the TCP was unable to send something, it would continue trying to send it until success. Therefore, all user input was sent eventually. However, there was latency in the responses as a result.
 
 Answer for Question 3:
 
-The speed of the TCP response was significantly slower. This is because, every time a message was lost, TCP would retry sending the message until it succeeded. This process often took time, which resulted in high latency. 
+The speed of the TCP response was significantly slower. This is because, every time a message was lost, TCP would retry sending the message until it succeeded. Obviously, this process takes time, which resulted in high latency. 
